@@ -1,37 +1,29 @@
-# Este é um fluxo de trabalho básico utilizado na Aula sobre GitHub Actios DevOps Básico.
+name: Build and Deploy Docker Image
 
-#nome do meu fluxo
-name: CI
-
-# Controla quando o fluxo de trabalho será executado
+# Dispara o workflow quando um push for feito na branch main
 on:
-  # Aciona o fluxo de trabalho em eventos de solicitação push ou pull, mas apenas para a ramificação "principal"
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
-  # Permite que você execute este fluxo de trabalho manualmente a partir da guia "Actions"
-  workflow_dispatch:
-
-# Uma execução de fluxo de trabalho é composta de um ou mais trabalhos que podem ser executados sequencialmente ou em paralelo
 jobs:
-  # Este fluxo de trabalho contém um único trabalho chamado "build"
-  build:
-    # Informando onde o trabalho será executado
+  build-and-deploy:
     runs-on: ubuntu-latest
-
-    # Steps representam uma sequência de tarefas que serão executadas como parte do trabalho
     steps:
-      # Check-out do seu repositório em $GITHUB_WORKSPACE, para que seu trabalho possa acessá-lo
-      - uses: actions/checkout@v3
-
-      # Executa um único comando usando o shell runners
-      - name: executando docker 
-        run: docker run docker/whalesay cowsay DEVOPS IT TALENT
-
-      # Executa um conjunto de comandos usando o shell runners
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Build Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: <nome_do_usuario>/<nome_da_imagem>:latest
+        dockerfile: Dockerfile
+    - name: Deploy Docker Image
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        script: |
+          docker-compose pull
+          docker-compose up -d
