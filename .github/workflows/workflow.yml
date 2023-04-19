@@ -1,42 +1,37 @@
-# Define o nome do workflow
+# Este é um fluxo de trabalho básico utilizado na Aula sobre GitHub Actios DevOps Básico.
+
+#nome do meu fluxo
 name: CI
 
-# Define quando o workflow será executado
+# Controla quando o fluxo de trabalho será executado
 on:
+  # Aciona o fluxo de trabalho em eventos de solicitação push ou pull, mas apenas para a ramificação "principal"
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
-# Define os jobs que serão executados pelo workflow
+  # Permite que você execute este fluxo de trabalho manualmente a partir da guia "Actions"
+  workflow_dispatch:
+
+# Uma execução de fluxo de trabalho é composta de um ou mais trabalhos que podem ser executados sequencialmente ou em paralelo
 jobs:
-  build-and-test:
-    # Define a máquina virtual que será usada para executar o job
+  # Este fluxo de trabalho contém um único trabalho chamado "build"
+  build:
+    # Informando onde o trabalho será executado
     runs-on: ubuntu-latest
 
-    # Define as etapas (steps) do job
+    # Steps representam uma sequência de tarefas que serão executadas como parte do trabalho
     steps:
-    # Etapa para clonar o repositório
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # Check-out do seu repositório em $GITHUB_WORKSPACE, para que seu trabalho possa acessá-lo
+      - uses: actions/checkout@v3
 
-    # Etapa para instalar o Node.js
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      # Executa um único comando usando o shell runners
+      - name: executando docker 
+        run: docker run docker/whalesay cowsay DEVOPS IT TALENT
 
-    # Etapa para instalar as dependências do projeto
-    - name: Install dependencies
-      run: |
-        npm ci
-
-    # Etapa para construir o projeto
-    - name: Build project
-      run: |
-        npm run build
-
-    # Etapa para executar os testes
-    - name: Run tests
-      run: |
-        npm test
+      # Executa um conjunto de comandos usando o shell runners
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
